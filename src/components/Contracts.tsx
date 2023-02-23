@@ -1,17 +1,7 @@
 import React from 'react';
 import Contract from './Contract';
 import Table from 'react-bootstrap/Table';
-
-interface IContract {
-  id: number;
-  number: string;
-  startDate: string;
-  sum: number;
-  currency: string;
-  title: string;
-  company: string;
-  endDate: string;
-}
+import { IContract } from '../interfaces';
 
 interface ContractsProps {
   contracts: IContract[];
@@ -25,10 +15,10 @@ const Contracts: React.FC<ContractsProps> = (props: ContractsProps) => {
         <tr>
           <th>Nosaukums</th>
           <th>Numurs</th>
-          <th className='col-2'>Otra puse</th>
+          <th>Otra puse</th>
           <th>Summa</th>
           <th>Valūta</th>
-          <th>Noslēgšanas datums</th>
+          <th className='col-2'>Noslēgšanas datums</th>
           <th className='col-2'>Beigu datums</th>
           <th>Izdzēst</th>
         </tr>

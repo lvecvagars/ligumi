@@ -6,74 +6,55 @@ import AddContract from './components/AddContract';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container';
 import Alert from 'react-bootstrap/Alert';
-
-interface IContract {
-  id: number;
-  number: string;
-  startDate: string;
-  sum: number;
-  currency: string;
-  title: string;
-  company: string;
-  endDate: string;
-}
+import { IContract } from './interfaces';
 
 const App: React.FC = () => {
   const [showAddContract, setShowAddContract] = useState<boolean>(false);
-
-  useEffect(() => {
-    const data = window.localStorage.getItem('showAddContract');
-    if (data) {
-      setShowAddContract(JSON.parse(data));
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem('showAddContract', JSON.stringify(showAddContract));
-  }, [showAddContract]);
 
   const [contracts, setContracts] = useState<IContract[]>([
     {
       id: 1,
       number: 'B2001234',
-      startDate: '2020-01-01',
+      startDate: new Date(2020, 0, 1),
       sum: 120.59,
-      currency: 'Euro',
+      currency: 'Eiro (€)',
       title: 'Līgums 1',
       company: 'SIA Meži',
-      endDate: '2023-01-01'
+      endDate: new Date(2023, 0, 1)
     },
     {
       id: 2,
       number: 'A1437431',
-      startDate: '2021-04-10',
+      startDate: new Date(2021, 3, 10),
       sum: 99.99,
-      currency: 'Euro',
+      currency: 'Eiro (€)',
       title: 'Līgums 2',
       company: 'SIA Lauki',
-      endDate: '2022-01-09'
+      endDate: new Date(2022, 0, 9)
     },
     {
       id: 3,
       number: 'C1309532',
-      startDate: '2020-09-12',
+      startDate: new Date(2020, 8, 12),
       sum: 250.00,
-      currency: 'Euro',
+      currency: 'Eiro (€)',
       title: 'Līgums 3',
       company: 'SIA Kalni',
-      endDate: '2022-08-01'
+      endDate: new Date(2022, 7, 1)
     }
   ]);
 
+  const STORAGE_KEY = 'contracts';
+
   useEffect(() => {
-    const data = window.localStorage.getItem('contracts');
+    const data = window.localStorage.getItem(STORAGE_KEY);
     if (data) {
       setContracts(JSON.parse(data));
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem('contracts', JSON.stringify(contracts));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(contracts));
   }, [contracts]);
 
   const addContract = (contract: IContract) => {
@@ -94,7 +75,7 @@ const App: React.FC = () => {
       />
 
       {showAddContract &&
-        <AddContract onAdd={addContract} />
+        <AddContract lastContract={contracts[contracts.length - 1]} onAdd={addContract} />
       }
 
       {(!showAddContract && contracts.length > 0) &&

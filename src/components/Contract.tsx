@@ -1,16 +1,6 @@
 import React from 'react';
-import { FaTrashAlt } from "react-icons/fa";
-
-interface IContract {
-  id: number;
-  number: string;
-  startDate: string;
-  sum: number;
-  currency: string;
-  title: string;
-  company: string;
-  endDate: string;
-}
+import { IContract } from '../interfaces';
+import {FaTrashAlt} from "react-icons/fa";
 
 interface ContractProps {
   key: number;
@@ -19,20 +9,35 @@ interface ContractProps {
 }
 
 const Contract: React.FC<ContractProps> = (props: ContractProps) => {
+  const convertDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  const handleDelete = () => {
+    const question = window.confirm('Vai tiešām vēlaties izdzēst līgumu?');
+    if(question) {
+      props.onDelete(props.contract.id);
+    }
+  }
+
   return (
     <tr>
       <td>{props.contract.title}</td>
       <td>{props.contract.number}</td>
-      <td className='col-2'>{props.contract.company}</td>
+      <td>{props.contract.company}</td>
       <td>{props.contract.sum}</td>
       <td>{props.contract.currency}</td>
-      <td>{props.contract.startDate}</td>
-      <td className='col-2'>{props.contract.endDate}</td>
+      <td>{convertDate(props.contract.startDate.toString())}</td>
+      <td>{convertDate(props.contract.endDate.toString())}</td>
       <td>
         <FaTrashAlt
           className='text-danger'
           style={{cursor: 'pointer'}}
-          onClick={() => props.onDelete(props.contract.id)}
+          onClick={handleDelete}
         />
       </td>
     </tr>

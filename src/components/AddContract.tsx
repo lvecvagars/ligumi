@@ -2,19 +2,14 @@ import React from 'react';
 import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-
-interface IContract {
-  id: number;
-  number: string;
-  startDate: string;
-  sum: number;
-  currency: string;
-  title: string;
-  company: string;
-  endDate: string;
-}
+import Alert from 'react-bootstrap/Alert';
+import { IContract } from '../interfaces';
+import ReactDOMServer from 'react-dom/server';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface IAddContract {
+  lastContract: IContract;
   onAdd: (contract: IContract) => void;
 }
 
@@ -24,58 +19,101 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
   const [company, setCompany] = useState<string>('');
   const [sum, setSum] = useState<number>(0);
   const [currency, setCurrency] = useState<string>('');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+
+  let currentId = props.lastContract.id;
+
+  const getNextId = (): number => {
+    currentId++;
+    return currentId;
+  }
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    let submitForm = true;
 
-    if(!title) {
-      alert('Lūdzu ierakstiet līguma nosaukumu');
-      return;
+    const titleAlert = document.getElementById('titleAlert');
+
+    if(titleAlert) {
+      if(title) {
+        titleAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        titleAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu ierakstiet līguma nosaukumu!</Alert>);
+      }
     }
 
-    if(!number) {
-      alert('Lūdzu ierakstiet līguma numuru');
-      return;
+    const numberAlert = document.getElementById('numberAlert');
+
+    if(numberAlert) {
+      if(number) {
+        numberAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        numberAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu ierakstiet līguma numuru!</Alert>);
+      }
     }
 
-    if(!company) {
-      alert('Lūdzu ierakstiet līguma otru pusi');
-      return;
+    const companyAlert = document.getElementById('companyAlert');
+
+    if(companyAlert) {
+      if(company) {
+        companyAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        companyAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu ierakstiet līguma otru pusi!</Alert>);
+      }
     }
 
-    if(!sum) {
-      alert('Lūdzu ierakstiet līguma summu');
-      return;
+    const sumAlert = document.getElementById('sumAlert');
+
+    if(sumAlert) {
+      if(sum >= 0) {
+        sumAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        sumAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu ierakstiet nenegatīvu līguma summu!</Alert>);
+      }
     }
 
-    if(!currency) {
-      alert('Lūdzu izvēlieties līguma valūtu');
-      return;
+    const currencyAlert = document.getElementById('currencyAlert');
+
+    if(currencyAlert) {
+      if(currency) {
+        currencyAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        currencyAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu izvēlieties līguma valūtu!</Alert>);
+      }
     }
 
-    if(!startDate) {
-      alert('Lūdzu izvēlieties līguma noslēgšanas datumu');
-      return;
+    const endDateAlert = document.getElementById('endDateAlert');
+
+    if(endDateAlert) {
+      if(endDate.getTime() > startDate.getTime()) {
+        endDateAlert.innerHTML = '';
+      } else {
+        submitForm = false;
+        endDateAlert.innerHTML = ReactDOMServer.renderToString(<Alert key='danger' variant='danger' className='mt-2'>Lūdzu izvēlieties līguma beigu datumu vēlāk par noslēgšanas datumu!</Alert>);
+      }
     }
 
-    if(!endDate) {
-      alert('Lūdzu izvēlieties līguma beigu datumu');
+    if(submitForm) {
+      const id = getNextId();
+
+      props.onAdd({ id, title, number, company, sum, currency, startDate, endDate });
+
+      setTitle('');
+      setNumber('');
+      setCompany('');
+      setSum(0);
+      setCurrency('');
+      setStartDate(new Date());
+      setEndDate(new Date());
+    } else {
       return;
     }
-
-    const id = Math.floor(Math.random() * 10000) + 1;
-
-    props.onAdd({ id, title, number, company, sum, currency, startDate, endDate });
-
-    setTitle('');
-    setNumber('');
-    setCompany('');
-    setSum(0);
-    setCurrency('');
-    setStartDate('');
-    setEndDate('');
   }
 
   return (
@@ -90,6 +128,7 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
             value={title}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
           />
+          <div id='titleAlert'></div>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formNumber'>
@@ -100,6 +139,7 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
             value={number}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumber(e.target.value)}
           />
+          <div id='numberAlert'></div>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formCompany'>
@@ -110,6 +150,7 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
             value={company}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompany(e.target.value)}
           />
+          <div id='companyAlert'></div>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formSum'>
@@ -120,6 +161,7 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
             step='5'
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSum(e.target.valueAsNumber)}
           />
+          <div id='sumAlert'></div>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formCurrency'>
@@ -133,24 +175,26 @@ const AddContract: React.FC<IAddContract> = (props: IAddContract) => {
             <option value='Dolāri ($)'>Dolāri ($)</option>
             <option value='Mārciņas (£)'>Mārciņas (£)</option>
           </Form.Select>
+          <div id='currencyAlert'></div>
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formStartDate'>
           <Form.Label>Līguma noslēgšanas datums</Form.Label>
-          <Form.Control
-            type='date'
-            value={startDate}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
+          <DatePicker
+            dateFormat='dd.MM.yyyy'
+            selected={startDate}
+            onChange={(date: Date) => setStartDate(date)}
           />
         </Form.Group>
 
         <Form.Group className='mb-3' controlId='formEndDate'>
           <Form.Label>Līguma beigu datums</Form.Label>
-          <Form.Control
-            type='date'
-            value={endDate}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
+          <DatePicker
+            dateFormat='dd.MM.yyyy'
+            selected={endDate}
+            onChange={(date: Date) => setEndDate(date)}
           />
+          <div id='endDateAlert'></div>
         </Form.Group>
 
         <Button className='w-100' variant='primary' type='submit'>Saglabāt līgumu</Button>
